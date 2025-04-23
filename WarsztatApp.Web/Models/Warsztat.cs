@@ -19,9 +19,9 @@ namespace WarsztatApp.Web.Models
         public string UserId {get; set; }
         public IdentityUser User { get; set; }
 
-        [ForeignKey("Magazyn")]
-        public string MagazynId { get; set; }
+        
+        public int MagazynId { get; set; }
 
-        public virtual Magazyn Magazyn { get; set; }
+        public Magazyn Magazyn { get; set; }
     }
 }

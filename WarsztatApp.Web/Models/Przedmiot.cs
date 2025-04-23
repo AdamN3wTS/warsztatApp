@@ -1,16 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using WarsztatApp.Web.Models;
 
 namespace WarsztatApp.Web.Models
 {
     public class Przedmiot
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public int Id { get; set; }
+        public string Nazwa { get; set; }
 
-        [ForeignKey("Magazyn")]
-        public string MagazynId { get; set; }
-        public virtual Magazyn Magazyn { get; set; }
+        public decimal Cena { get; set; }
 
-        public TypPrzedmiotu typPrzedmiotu { get; set; }
+        public int Ilosc { get; set; }
+
+        
+        public int MagazynId { get; set; }
+        public  Magazyn Magazyn { get; set; }
+
+        public PrzedmiotEnum typPrzedmiotu { get; set; }
+        public List<ZleceniePrzedmiot> ZleceniePrzedmioty { get; set; } = new();
     }
 }
