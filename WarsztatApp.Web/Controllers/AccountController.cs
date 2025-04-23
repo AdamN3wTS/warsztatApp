@@ -10,6 +10,14 @@ namespace WarsztatApp.Web.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly AppDbContext _appDbContext;
+
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, AppDbContext appDbContext)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _appDbContext = appDbContext;
+        }
+
         public IActionResult Register()
         {
             return View();
@@ -39,6 +47,7 @@ namespace WarsztatApp.Web.Controllers
         {
             return View();
         }
+        [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
             if (ModelState.IsValid)
