@@ -22,8 +22,8 @@ namespace WarsztatApp.Web.Models
         public List<ZleceniePrzedmiot>? ZleceniePrzedmioty { get; set; } = new();
 
         
-        public int? WarsztatId { get; set; }
+        public int WarsztatId { get; set; }
 
-        public  Warsztat? Warsztat { get; set; }
+        public  Warsztat Warsztat { get; set; }
     }
 }

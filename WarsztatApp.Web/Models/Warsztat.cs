@@ -26,5 +26,7 @@ namespace WarsztatApp.Web.Models
         public int? MagazynId { get; set; }
 
         public Magazyn? Magazyn { get; set; }
+        public List<Zlecenie> Zlecenia { get; set; } = new();
+
     }
 }

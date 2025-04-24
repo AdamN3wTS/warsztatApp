@@ -45,9 +45,9 @@ namespace WarsztatApp.Web.Data
             // relacja Zlecenie -> Warsztat
             modelBuilder.Entity<Zlecenie>()
                 .HasOne(z => z.Warsztat)
-                .WithMany()
+                .WithMany(w => w.Zlecenia)
                 .HasForeignKey(z => z.WarsztatId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // relacja Warsztat -> Magazyn
             modelBuilder.Entity<Warsztat>()

@@ -1,6 +1,49 @@
 ﻿@model WarsztatApp.Web.Models.Warsztat
 @{
 }
-<h1>@Model.Email</h1>
-<h2>@Model.Adres</h2>
-<h3>@Model.Nazwa</h3>
+<p>Zleceń: @(Model.Zlecenia?.Count ?? 0)</p>
+<h1>@Model.Nazwa przejdz do magazunu <a asp-controller="Warsztat" asp-action="Magazyn">Magazyn</a></h1>
+<h2>Zlecenia:</h2>
+<table>
+    <thead>
+        <tr>
+            <th>
+                Id
+            </th>
+            <th>
+                Nazwa
+            </th>
+            <th>
+                stanZleceniaEnum
+            </th>
+            <th>
+                DataPrzyjecią
+            </th>
+            <th>
+                Akcja
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Zlecenia) {
+            <tr>
+                <th>
+                    @item.Id
+                </th>
+                <th>
+                    @item.Nazwa
+                </th>
+                <th>
+                    @item.stanZleceniaEnum
+                </th>
+                <th>
+                    @item.DataPrzyjecią
+                </th>
+                <th>
+                    Bedzie tutaj Edytuj:
+                </th>
+            </tr>
+        }
+    </tbody>
+    
+</table>
