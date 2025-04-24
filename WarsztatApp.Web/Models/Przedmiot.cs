@@ -6,17 +6,17 @@ namespace WarsztatApp.Web.Models
     public class Przedmiot
     {
         public int Id { get; set; }
-        public string Nazwa { get; set; }
+        public string? Nazwa { get; set; }
 
-        public decimal Cena { get; set; }
+        public decimal? Cena { get; set; }
 
-        public int Ilosc { get; set; }
+        public int? Ilosc { get; set; }
 
         
-        public int MagazynId { get; set; }
-        public  Magazyn Magazyn { get; set; }
+        public int? MagazynId { get; set; }
+        public  Magazyn? Magazyn { get; set; }
 
-        public PrzedmiotEnum typPrzedmiotu { get; set; }
-        public List<ZleceniePrzedmiot> ZleceniePrzedmioty { get; set; } = new();
+        public PrzedmiotEnum? typPrzedmiotu { get; set; }
+        public List<ZleceniePrzedmiot>? ZleceniePrzedmioty { get; set; } = new();
     }
 }

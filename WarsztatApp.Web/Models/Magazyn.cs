@@ -4,6 +4,6 @@
     {
         public int Id { get; set; }
 
-        public List<Przedmiot> Przedmioty { get; set; } = new();
+        public List<Przedmiot>? Przedmioty { get; set; } = new();
     }
 }

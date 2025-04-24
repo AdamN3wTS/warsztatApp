@@ -35,10 +35,15 @@ namespace WarsztatApp.Web.Controllers
                     {
                         Email = user.Email,
                         UserId = user.Id,
+                        Magazyn = new Magazyn()
                     };
                     _appDbContext.Warsztaty.Add(warsztat);
                     await _appDbContext.SaveChangesAsync();
                     return RedirectToAction("Login");
+                }
+                foreach(var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
                 }
             }
             return View(registerViewModel);

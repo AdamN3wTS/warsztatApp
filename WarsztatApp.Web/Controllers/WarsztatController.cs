@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -9,31 +10,24 @@ namespace WarsztatApp.Web.Controllers
 {
     public class WarsztatController : Controller
     {
-        private readonly AppDbContext appDbContext;
+        private readonly AppDbContext _appDbContext;
         private readonly UserManager<IdentityUser> _userManager;
-        public async Task<IActionResult> Warsztat()
+        public WarsztatController(AppDbContext appDbContext, UserManager<IdentityUser> userManager)
         {
-            var userId = _userManager.GetUserId(User);
-            var warsztat = await appDbContext.Warsztaty.FirstOrDefaultAsync( s=> s.UserId ==userId);
-            return View(warsztat);
+            _appDbContext = appDbContext;
+            _userManager = userManager;
         }
-        [HttpPost]
-        public async Task<IActionResult> Warsztat(Warsztat warsztat)
+        public async Task<IActionResult> Home()
         {
-            if (ModelState.IsValid)
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                var userId = _userManager.GetUserId(User);
-                var warsztatFromDb = await appDbContext.Warsztaty.FirstOrDefaultAsync(s => s.UserId==userId);
-                warsztatFromDb.Adres=warsztat.Adres;
-                warsztatFromDb.Nazwa=warsztat.Nazwa;
-                await appDbContext.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return View("Error");
             }
+            var warsztat = await _appDbContext.Warsztaty.FirstOrDefaultAsync(w => w.UserId == user.Id);
             return View(warsztat);
         }
-        public IActionResult Index()
-        {
-            return View();
-        }
+        
+
     }
 }
