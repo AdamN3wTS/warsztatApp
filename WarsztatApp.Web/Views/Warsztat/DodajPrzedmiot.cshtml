@@ -1,0 +1,23 @@
+﻿@model WarsztatApp.Web.Models.Przedmiot
+
+<form asp-action="DodajPrzedmiot" method="post">
+    @Html.AntiForgeryToken()
+
+    <label asp-for="Nazwa"></label>
+    <input asp-for="Nazwa" class="form-control" />
+    <span asp-validation-for="Nazwa" class="text-danger"></span>
+
+    <label asp-for="Ilosc"></label>
+    <input asp-for="Ilosc" class="form-control" />
+    <span asp-validation-for="Ilosc" class="text-danger"></span>
+
+    <label asp-for="Cena"></label>
+    <input asp-for="Cena" class="form-control" />
+    <span asp-validation-for="Cena" class="text-danger"></span>
+
+    <label asp-for="typPrzedmiotu"></label>
+    <select asp-for="typPrzedmiotu" asp-items="Html.GetEnumSelectList<PrzedmiotEnum>()" class="form-control"></select>
+    <span asp-validation-for="typPrzedmiotu" class="text-danger"></span>
+
+    <button type="submit" class="btn btn-primary">Dodaj przedmiot</button>
+</form>

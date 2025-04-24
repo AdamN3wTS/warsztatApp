@@ -1,0 +1,11 @@
+﻿@model WarsztatApp.Web.Models.Warsztat
+@{
+}
+<form method="post">
+	@Html.AntiForgeryToken()
+	<label asp-for="Adres"></label>
+	<input asp-for="Adres"/>
+	<label asp-for="Nazwa"></label>
+	<input asp-for="Nazwa" />
+	<button type="submit">Edytuj</button>
+	</form>

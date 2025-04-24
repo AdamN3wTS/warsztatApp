@@ -1,0 +1,23 @@
+﻿@model WarsztatApp.Web.Models.Magazyn
+@{
+}
+<table>
+	<thead>
+		<tr>
+			<th>Nazwa Produktu</th>
+			<th>Ilosc </th>
+			<th>Cena</th
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model.Przedmioty)
+		{
+			<tr>
+				<th>@item.Nazwa</th>
+				<th>@item.Ilosc</th>
+				<th>@item.Cena</th>
+			</tr>	
+		}
+	</tbody>
+</table>
+<a asp-controller="Warsztat" asp-action="DodajPrzedmiot">Dodaj Przedmiot</a>
