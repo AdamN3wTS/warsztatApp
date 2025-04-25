@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using WarsztatApp.Web.Data;
 using WarsztatApp.Web.Models;
@@ -168,9 +169,44 @@ namespace WarsztatApp.Web.Controllers
                 .ThenInclude(m => m.Przedmioty)
                 .FirstOrDefaultAsync(w => w.UserId == userFallback.Id);
 
-            // WAŻNE! — ładujemy ponownie przedmioty
             ViewBag.Przedmioty = warsztatFallback?.Magazyn?.Przedmioty?.ToList() ?? new List<Przedmiot>();
             return View(zlecenie);
         }
+        [HttpGet]
+        public async Task<IActionResult> Edytuj(int id)
+        {
+            Console.WriteLine("Przychodzący ID: " + id);
+
+            var zlecenie = await _appDbContext.Zlecenia
+                .Include(i => i.ZleceniePrzedmioty)
+                .ThenInclude(zp => zp.Przedmiot)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (zlecenie == null)
+            {
+                Console.WriteLine("Nie znaleziono zlecenia o ID: " + id);
+                return NotFound();
+            }
+
+            return View(zlecenie);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edytuj(Zlecenie zlecenie) 
+        {
+            var zlecenieDb= await _appDbContext.Zlecenia.FindAsync(zlecenie.Id);
+
+            _appDbContext.ZleceniePrzedmioty.RemoveRange(zlecenieDb.ZleceniePrzedmioty);
+            
+            zlecenieDb.ZleceniePrzedmioty = zlecenie.ZleceniePrzedmioty;
+            zlecenieDb.Cena = zlecenie.Cena;
+            zlecenieDb.Opis=zlecenie.Opis;
+            zlecenieDb.stanZleceniaEnum = zlecenie.stanZleceniaEnum;
+            await _appDbContext.SaveChangesAsync();
+            return RedirectToAction("Home");
+            
+            
+        }
+
     }
 }

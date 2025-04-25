@@ -40,7 +40,8 @@
                     @item.DataPrzyjecią
                 </th>
                 <th>
-                    Bedzie tutaj Edytuj:
+                    <a asp-action="Edytuj" asp-route-id="item.Id">Edytuj</a>
+                    <span>(ID: @item.Id)</span>
                 </th>
             </tr>
         }

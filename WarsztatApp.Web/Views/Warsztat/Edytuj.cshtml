@@ -1,0 +1,42 @@
+﻿@model WarsztatApp.Web.Models.Zlecenie
+
+<h2>Edytuj zlecenie</h2>
+
+<form asp-action="Edytuj" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Nazwa"></label>
+        <input asp-for="Nazwa" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Opis"></label>
+        <textarea asp-for="Opis" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Cena"></label>
+        <input asp-for="Cena" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="stanZleceniaEnum"></label>
+        <select asp-for="stanZleceniaEnum" asp-items="Html.GetEnumSelectList<WarsztatApp.Web.Models.StanZleceniaEnum>()" class="form-control"></select>
+    </div>
+
+    <h4>Przedmioty w zleceniu</h4>
+
+    @for (int i = 0; i < Model.ZleceniePrzedmioty.Count; i++)
+    {
+        <div class="mb-2 border p-2 rounded">
+            <input type="hidden" name="ZleceniePrzedmioty[@i].PrzedmiotId" value="@Model.ZleceniePrzedmioty[i].PrzedmiotId" />
+            <label>@Model.ZleceniePrzedmioty[i].Przedmiot.Nazwa</label>
+            <input type="number" name="ZleceniePrzedmioty[@i].IloscZuzyta" value="@Model.ZleceniePrzedmioty[i].IloscZuzyta" class="form-control" />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary mt-3">Zapisz zmiany</button>
+</form>
