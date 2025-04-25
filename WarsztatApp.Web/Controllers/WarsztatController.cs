@@ -123,11 +123,17 @@ namespace WarsztatApp.Web.Controllers
             ViewBag.Przedmioty = warsztat?.Magazyn?.Przedmioty?.ToList() ?? new List<Przedmiot>();
             Console.WriteLine("Magazyn ID: " + warsztat?.Magazyn?.Id);
             Console.WriteLine("Przedmioty count: " + warsztat?.Magazyn?.Przedmioty?.Count);
-            return View(new Zlecenie());
+            return View(new Zlecenie
+            {
+                WarsztatId = warsztat.Id,
+                Warsztat = warsztat,
+
+            });
         }
         [HttpPost]
         public async Task<IActionResult> DodajZlecenie(Zlecenie zlecenie)
         {
+            Console.WriteLine("Kliknąłeś Dodaj");
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
@@ -153,6 +159,7 @@ namespace WarsztatApp.Web.Controllers
                     DataPrzyjecią = DateTime.Now,
                     Nazwa = zlecenie.Nazwa,
                     Opis = zlecenie.Opis,
+                    Warsztat = warsztat,
                     WarsztatId = warsztat.Id,
                     stanZleceniaEnum = StanZleceniaEnum.Przyjęte,
                     ZleceniePrzedmioty = zleconiePrzedmioty,
@@ -163,13 +170,15 @@ namespace WarsztatApp.Web.Controllers
                 Console.WriteLine("Zlecenia count w ifie: " + warsztat.Zlecenia?.Count);
                 return RedirectToAction("Home");
             }
-            var userFallback = await _userManager.GetUserAsync(User);
-            var warsztatFallback = await _appDbContext.Warsztaty
-                .Include(w => w.Magazyn)
-                .ThenInclude(m => m.Przedmioty)
-                .FirstOrDefaultAsync(w => w.UserId == userFallback.Id);
-
-            ViewBag.Przedmioty = warsztatFallback?.Magazyn?.Przedmioty?.ToList() ?? new List<Przedmiot>();
+            Console.WriteLine("Jakiś Błąd wypierdoliło");
+            var errors = ModelState.Select(x => x.Value.Errors).Where(y => y.Count > 0).ToList();
+            foreach(var er in errors)
+            {
+                foreach (var e in er)
+                {
+                    Console.WriteLine(e.ErrorMessage);
+                }
+            }
             return View(zlecenie);
         }
         [HttpGet]
