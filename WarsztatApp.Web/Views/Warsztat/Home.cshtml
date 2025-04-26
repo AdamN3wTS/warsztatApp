@@ -7,9 +7,7 @@
 <table>
     <thead>
         <tr>
-            <th>
-                Id
-            </th>
+            
             <th>
                 Nazwa
             </th>
@@ -20,16 +18,18 @@
                 DataPrzyjecią
             </th>
             <th>
-                Akcja
+                Edytuj
             </th>
+            <th>
+             </th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model.Zlecenia) {
+            if(item.stanZleceniaEnum!=StanZleceniaEnum.Zakończone)
+            {
             <tr>
-                <th>
-                    @item.Id
-                </th>
+                
                 <th>
                     @item.Nazwa
                 </th>
@@ -40,10 +40,18 @@
                     @item.DataPrzyjecią
                 </th>
                 <th>
-                    <a asp-action="Edytuj" asp-route-id="item.Id">Edytuj</a>
+                    <a asp-action="Edytuj" asp-route-id="@item.Id">Edytuj</a>
+                    
                     <span>(ID: @item.Id)</span>
                 </th>
+                <th>
+                    <form asp-action="Usun" asp-route-id="@item.Id" method="post">
+                            <button type="submit">Usuń</button>
+                    </form>
+                    
+                </th>
             </tr>
+            }
         }
     </tbody>
     

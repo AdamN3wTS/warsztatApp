@@ -24,6 +24,6 @@ namespace WarsztatApp.Web.Models
         
         public int WarsztatId { get; set; }
 
-        public  Warsztat Warsztat { get; set; }
+        public Warsztat? Warsztat { get; set; }
     }
 }

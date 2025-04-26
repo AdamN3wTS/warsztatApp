@@ -123,12 +123,8 @@ namespace WarsztatApp.Web.Controllers
             ViewBag.Przedmioty = warsztat?.Magazyn?.Przedmioty?.ToList() ?? new List<Przedmiot>();
             Console.WriteLine("Magazyn ID: " + warsztat?.Magazyn?.Id);
             Console.WriteLine("Przedmioty count: " + warsztat?.Magazyn?.Przedmioty?.Count);
-            return View(new Zlecenie
-            {
-                WarsztatId = warsztat.Id,
-                Warsztat = warsztat,
 
-            });
+            return View();
         }
         [HttpPost]
         public async Task<IActionResult> DodajZlecenie(Zlecenie zlecenie)
@@ -138,7 +134,7 @@ namespace WarsztatApp.Web.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
                 var warsztat = await _appDbContext.Warsztaty.Include(w => w.Magazyn).ThenInclude(m => m.Przedmioty).FirstOrDefaultAsync(w => w.UserId == user.Id);
-                
+                zlecenie.WarsztatId = warsztat.Id;
                 List<ZleceniePrzedmiot> zleconiePrzedmioty = new List<ZleceniePrzedmiot>();
                 foreach(var item in warsztat.Magazyn.Przedmioty)
                 {
@@ -159,16 +155,15 @@ namespace WarsztatApp.Web.Controllers
                     DataPrzyjecią = DateTime.Now,
                     Nazwa = zlecenie.Nazwa,
                     Opis = zlecenie.Opis,
-                    Warsztat = warsztat,
-                    WarsztatId = warsztat.Id,
                     stanZleceniaEnum = StanZleceniaEnum.Przyjęte,
                     ZleceniePrzedmioty = zleconiePrzedmioty,
+                    WarsztatId=warsztat.Id
                     
                 };
                 _appDbContext.Zlecenia.Add(zlecenieDb);
                 await _appDbContext.SaveChangesAsync();
                 Console.WriteLine("Zlecenia count w ifie: " + warsztat.Zlecenia?.Count);
-                return RedirectToAction("Home");
+                return RedirectToAction("Home", "Warsztat");
             }
             Console.WriteLine("Jakiś Błąd wypierdoliło");
             var errors = ModelState.Select(x => x.Value.Errors).Where(y => y.Count > 0).ToList();
@@ -203,18 +198,55 @@ namespace WarsztatApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edytuj(Zlecenie zlecenie) 
         {
-            var zlecenieDb= await _appDbContext.Zlecenia.FindAsync(zlecenie.Id);
+            var zlecenieDb = await _appDbContext.Zlecenia.Include(z => z.ZleceniePrzedmioty).FirstOrDefaultAsync(z => z.Id == zlecenie.Id);
+            if (zlecenieDb.ZleceniePrzedmioty != null)
+            {
+                _appDbContext.ZleceniePrzedmioty.RemoveRange(zlecenieDb.ZleceniePrzedmioty);
+            }
+            if (zlecenie.ZleceniePrzedmioty != null)
+            {
+                foreach (var zp in zlecenie.ZleceniePrzedmioty)
+                {
+                    zp.ZlecenieId = zlecenie.Id; 
+                    _appDbContext.ZleceniePrzedmioty.Add(zp);
+                }
+            }
 
-            _appDbContext.ZleceniePrzedmioty.RemoveRange(zlecenieDb.ZleceniePrzedmioty);
-            
-            zlecenieDb.ZleceniePrzedmioty = zlecenie.ZleceniePrzedmioty;
+            // Aktualizuj pozostałe dane
             zlecenieDb.Cena = zlecenie.Cena;
-            zlecenieDb.Opis=zlecenie.Opis;
+            zlecenieDb.Opis = zlecenie.Opis;
             zlecenieDb.stanZleceniaEnum = zlecenie.stanZleceniaEnum;
+            if (zlecenieDb.stanZleceniaEnum == StanZleceniaEnum.Zakończone) 
+            {
+                zlecenieDb.DataZakończenia = DateTime.Now;
+            }
+
             await _appDbContext.SaveChangesAsync();
-            return RedirectToAction("Home");
-            
-            
+
+            return RedirectToAction("Home", "Warsztat");
+
+
+        }
+        [HttpPost]
+        public async Task<IActionResult> Usun(int id)
+        {
+            var zlecenie = await _appDbContext.Zlecenia.Include(z=>z.ZleceniePrzedmioty).FirstOrDefaultAsync(z=>z.Id==id);
+            if (zlecenie != null) 
+            {
+                _appDbContext.ZleceniePrzedmioty.RemoveRange(zlecenie.ZleceniePrzedmioty);
+                _appDbContext.Zlecenia.Remove(zlecenie);
+                await _appDbContext.SaveChangesAsync();
+            }
+            Console.WriteLine(id);
+            return Redirect(Request.Headers["Referer".ToString()]);
+        }
+        [HttpGet]
+        public async Task<IActionResult> HistoriaZlecen() 
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var warsztat = await _appDbContext.Warsztaty.FirstOrDefaultAsync(w => w.UserId == user.Id);
+            var zlecenia = await _appDbContext.Zlecenia.Where(z => z.WarsztatId == warsztat.Id).ToListAsync();
+            return View(zlecenia);
         }
 
     }

@@ -1,0 +1,45 @@
+﻿@model List<WarsztatApp.Web.Models.Zlecenie>
+@{
+}
+<table>
+	<thed>
+		<tr>
+			<th>
+				Nazwa
+			</th>
+			<th>
+				Stan Zlecenia
+			</th>
+			<th>
+				Data Przyjęcia
+			</th>
+			<th>
+				Data Zakończenia
+			</th>
+			<th>
+				Cena
+			</th>
+			<th>
+				Usuń
+			</th>
+		</tr>
+	</thed>
+	<tbody>
+		@foreach(var item in Model)
+		{
+			<tr>
+				<th>@item.Nazwa</th>
+				<th>@item.stanZleceniaEnum</th>
+				<th>@item.DataPrzyjecią</th>
+				<th>@item.DataZakończenia</th>
+				<th>@item.Cena</th>
+				<th>
+					<form asp-action="Usun" asp-route-id="@item.Id" method="post">
+						<button type="submit">Usuń</button>
+					</form>
+				</th>
+			</tr>
+		}
+	</tbody>
+</table>
+
