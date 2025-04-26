@@ -9,18 +9,25 @@ using WarsztatApp.Web.Models;
 
 namespace WarsztatApp.Web.Controllers
 {
+    [Authorize]
     public class WarsztatController : Controller
     {
         private readonly AppDbContext _appDbContext;
         private readonly UserManager<IdentityUser> _userManager;
-        public WarsztatController(AppDbContext appDbContext, UserManager<IdentityUser> userManager)
+        private readonly SignInManager<IdentityUser> _signInManager;
+        public WarsztatController(AppDbContext appDbContext, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
             _appDbContext = appDbContext;
             _userManager = userManager;
+            _signInManager = signInManager;
         }
         [HttpGet]
         public async Task<IActionResult> Home()
         {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Login", "Account");
+            }
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return View("Error");
 
@@ -89,6 +96,10 @@ namespace WarsztatApp.Web.Controllers
 
                 }
                 var warsztatDb = await _appDbContext.Warsztaty.Include(w => w.Magazyn).ThenInclude(m => m.Przedmioty).FirstOrDefaultAsync(w => w.UserId == user.Id);
+                if (przedmiot.Ilosc <= 0)
+                {
+                    return View(przedmiot);
+                }
                 Przedmiot przedmiotDb = new Przedmiot
                 {
                     Nazwa = przedmiot.Nazwa,
@@ -97,6 +108,7 @@ namespace WarsztatApp.Web.Controllers
                     MagazynId = warsztatDb.Magazyn.Id,
                     typPrzedmiotu = przedmiot.typPrzedmiotu,
                 };
+
                 await _appDbContext.Przedmioty.AddAsync(przedmiotDb);
                 
                 await _appDbContext.SaveChangesAsync();
@@ -130,52 +142,82 @@ namespace WarsztatApp.Web.Controllers
         public async Task<IActionResult> DodajZlecenie(Zlecenie zlecenie)
         {
             Console.WriteLine("Kliknąłeś Dodaj");
+
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
-                var warsztat = await _appDbContext.Warsztaty.Include(w => w.Magazyn).ThenInclude(m => m.Przedmioty).FirstOrDefaultAsync(w => w.UserId == user.Id);
-                zlecenie.WarsztatId = warsztat.Id;
+                var warsztat = await _appDbContext.Warsztaty
+                    .Include(w => w.Magazyn)
+                    .ThenInclude(m => m.Przedmioty)
+                    .FirstOrDefaultAsync(w => w.UserId == user.Id);
+
+                if (warsztat == null)
+                {
+                    Console.WriteLine("Nie znaleziono warsztatu.");
+                    return NotFound();
+                }
+
                 List<ZleceniePrzedmiot> zleconiePrzedmioty = new List<ZleceniePrzedmiot>();
-                foreach(var item in warsztat.Magazyn.Przedmioty)
+                List<Przedmiot> przedmiotyDoUsuniecia = new List<Przedmiot>();
+                var cenaKoncowa = 0;
+
+                foreach (var item in warsztat.Magazyn.Przedmioty.ToList())
                 {
                     var iloscString = Request.Form[$"iloscZuzyta_{item.Id}"];
                     var checkbox = Request.Form[$"przedmiot_{item.Id}"];
-                    if (!string.IsNullOrEmpty(checkbox) && int.TryParse(iloscString, out int ilosc) && ilosc > 0)
+
+                    if (!string.IsNullOrEmpty(checkbox) && int.TryParse(iloscString, out int ilosc) && ilosc > 0 && item.Ilosc - ilosc >= 0)
                     {
                         zleconiePrzedmioty.Add(new ZleceniePrzedmiot
                         {
-                            PrzedmiotId = item.Id,
-                            IloscZuzyta = ilosc
+                            PrzedmiotId = item.Id, 
+                            IloscZuzyta = ilosc,
+                            
                         });
+                        cenaKoncowa = (int)(cenaKoncowa + (item.Cena*ilosc));
+                        item.Ilosc -= ilosc;
+
+                        
                     }
                 }
-                Zlecenie zlecenieDb = new Zlecenie
-
+                
+                
+                var zlecenieDb = new Zlecenie
                 {
                     DataPrzyjecią = DateTime.Now,
                     Nazwa = zlecenie.Nazwa,
                     Opis = zlecenie.Opis,
                     stanZleceniaEnum = StanZleceniaEnum.Przyjęte,
                     ZleceniePrzedmioty = zleconiePrzedmioty,
-                    WarsztatId=warsztat.Id
+                    WarsztatId = warsztat.Id,
+                    Cena = cenaKoncowa,
                     
                 };
+
                 _appDbContext.Zlecenia.Add(zlecenieDb);
+
+                
+
                 await _appDbContext.SaveChangesAsync();
-                Console.WriteLine("Zlecenia count w ifie: " + warsztat.Zlecenia?.Count);
+
+                Console.WriteLine("Zlecenie dodane!");
+
                 return RedirectToAction("Home", "Warsztat");
             }
-            Console.WriteLine("Jakiś Błąd wypierdoliło");
+
+            Console.WriteLine("Jakiś błąd wypierdoliło");
             var errors = ModelState.Select(x => x.Value.Errors).Where(y => y.Count > 0).ToList();
-            foreach(var er in errors)
+            foreach (var er in errors)
             {
                 foreach (var e in er)
                 {
                     Console.WriteLine(e.ErrorMessage);
                 }
             }
+
             return View(zlecenie);
         }
+
         [HttpGet]
         public async Task<IActionResult> Edytuj(int id)
         {
@@ -212,7 +254,7 @@ namespace WarsztatApp.Web.Controllers
                 }
             }
 
-            // Aktualizuj pozostałe dane
+            
             zlecenieDb.Cena = zlecenie.Cena;
             zlecenieDb.Opis = zlecenie.Opis;
             zlecenieDb.stanZleceniaEnum = zlecenie.stanZleceniaEnum;

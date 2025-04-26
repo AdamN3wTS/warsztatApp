@@ -21,23 +21,32 @@
         <span asp-validation-for="Opis" class="text-danger"></span>
     </div>
 
-    <h4>Wybierz przedmioty</h4>
-    @if (przedmioty != null && przedmioty.Any())
-    {
-        foreach (var p in przedmioty)
+    <h4>Wybierz typ przedmiotu</h4>
+
+    <select id="typPrzedmiotu" class="form-control mb-4">
+        <option value="">-- Wybierz typ --</option>
+        @foreach (var typ in Enum.GetValues(typeof(WarsztatApp.Web.Models.PrzedmiotEnum)))
         {
-            <div class="mb-2 border p-2 rounded">
-                <input type="checkbox" name="przedmiot_@p.Id" value="true" />
-                <strong>@p.Nazwa</strong><br />
-                <label>Ilość zużyta:</label>
-                <input type="number" name="iloscZuzyta_@p.Id" class="form-control" min="0" />
-            </div>
+            <option value="@typ">@typ</option>
         }
-    }
-    else
-    {
-        <p class="text-warning">Brak przedmiotów w magazynie.</p>
-    }
+    </select>
+
+    <h4>Wybierz przedmioty</h4>
+    
+    <div id="listaPrzedmiotow">
+        @foreach (var p in przedmioty)
+        {
+            if (p.Ilosc > 0)
+            {
+                <div class="mb-2 border p-2 rounded" data-typ="@p.typPrzedmiotu" style="display:none;">
+                    <input type="checkbox" name="przedmiot_@p.Id" value="true" />
+                    <strong>@p.Nazwa</strong><br />
+                    <label>Ilość zużyta:</label>
+                    <input type="number" name="iloscZuzyta_@p.Id" class="form-control" min="0" />
+                </div>
+            }
+        }
+    </div>
 
     <button type="submit" class="btn btn-primary mt-3">Dodaj zlecenie</button>
 </form>
@@ -46,4 +55,18 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        document.getElementById('typPrzedmiotu').addEventListener('change', function () {
+            var wybranyTyp = this.value;
+            var przedmioty = document.querySelectorAll('#listaPrzedmiotow > div');
+
+            przedmioty.forEach(function (przedmiot) {
+                if (wybranyTyp === "" || przedmiot.getAttribute('data-typ') === wybranyTyp) {
+                    przedmiot.style.display = 'block';
+                } else {
+                    przedmiot.style.display = 'none';
+                }
+            });
+        });
+    </script>
 }

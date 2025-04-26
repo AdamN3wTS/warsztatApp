@@ -1,23 +1,30 @@
 ﻿@model WarsztatApp.Web.Models.Magazyn
-@{
-}
-<table>
-	<thead>
-		<tr>
-			<th>Nazwa Produktu</th>
-			<th>Ilosc </th>
-			<th>Cena</th
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in Model.Przedmioty)
-		{
-			<tr>
-				<th>@item.Nazwa</th>
-				<th>@item.Ilosc</th>
-				<th>@item.Cena</th>
-			</tr>	
-		}
-	</tbody>
-</table>
-<a asp-controller="Warsztat" asp-action="DodajPrzedmiot">Dodaj Przedmiot</a>
+
+<h2 class="mt-4 mb-4">Magazyn Przedmiotów</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Nazwa Produktu</th>
+                <th>Ilość</th>
+                <th>Cena (zł)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Przedmioty)
+            {
+                if (item.Ilosc > 0)
+                {
+                    <tr>
+                        <td>@item.Nazwa</td>
+                        <td>@item.Ilosc</td>
+                        <td>@(item.Cena.HasValue ? item.Cena.Value.ToString("0.00") : "-")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<a asp-controller="Warsztat" asp-action="DodajPrzedmiot" class="btn btn-primary mt-4">Dodaj Przedmiot</a>

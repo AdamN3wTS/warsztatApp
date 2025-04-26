@@ -60,7 +60,7 @@ namespace WarsztatApp.Web.Controllers
                 var result = await _signInManager.PasswordSignInAsync(loginViewModel.Email, loginViewModel.Password, true, false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Warsztat");
+                    return RedirectToAction("Home", "Warsztat");
                 }
                 else
                 {
@@ -70,6 +70,12 @@ namespace WarsztatApp.Web.Controllers
 
             }
             return View(loginViewModel);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Logout() 
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login", "Account");
         }
     }
 }
