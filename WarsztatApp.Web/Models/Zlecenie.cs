@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
 namespace WarsztatApp.Web.Models
@@ -12,7 +13,7 @@ namespace WarsztatApp.Web.Models
         public string? Opis { get; set; }
 
         public decimal? Cena { get; set; }
-
+        [Display(Name = "Stan Zlecenia")]
         public StanZleceniaEnum? stanZleceniaEnum { get; set; }
 
         public DateTime? DataPrzyjecią { get; set; } = DateTime.Now;

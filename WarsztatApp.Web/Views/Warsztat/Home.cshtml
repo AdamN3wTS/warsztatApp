@@ -1,4 +1,6 @@
-﻿@model WarsztatApp.Web.Models.Warsztat
+﻿@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+@model WarsztatApp.Web.Models.Warsztat
 
 <div class="row g-4">
     <div class="col-md-6">
@@ -31,11 +33,11 @@
     {
         if (zlecenie.stanZleceniaEnum!=StanZleceniaEnum.Zakończone)
         {
-        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <li style="cursor: pointer;" class="list-group-item d-flex justify-content-between align-items-center card-hover" onclick="location.href='@Url.Action("Edytuj","Warsztat",new {id= zlecenie.Id})'">
             <div>
                 <h5 class="mb-1">@zlecenie.Nazwa</h5>
-                <small>Status: @zlecenie.stanZleceniaEnum | Data: @zlecenie.DataPrzyjecią?.ToString("dd.MM.yyyy HH:mm")</small>
-            </div>
+                    <small>Status: @GetDisplayName(zlecenie.stanZleceniaEnum) | Data: @zlecenie.DataPrzyjecią?.ToString("dd.MM.yyyy HH:mm")</small>
+                </div>
             <div>
                 <a asp-action="Edytuj" asp-route-id="@zlecenie.Id" class="btn btn-sm btn-outline-primary me-2">Edytuj</a>
 
@@ -47,3 +49,13 @@
         }
     }
 </ul>
+@functions {
+    public static string GetDisplayName(Enum enumValue)
+    {
+        return enumValue.GetType()
+            .GetMember(enumValue.ToString())
+            .First()
+            .GetCustomAttribute<DisplayAttribute>()?
+            .GetName() ?? enumValue.ToString();
+    }
+}

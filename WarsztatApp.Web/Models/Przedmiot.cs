@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WarsztatApp.Web.Models;
 
 namespace WarsztatApp.Web.Models
@@ -16,6 +17,7 @@ namespace WarsztatApp.Web.Models
         public int? MagazynId { get; set; }
         public  Magazyn? Magazyn { get; set; }
 
+        [Display(Name ="Typ przedmiotu")]
         public PrzedmiotEnum? typPrzedmiotu { get; set; }
         public List<ZleceniePrzedmiot>? ZleceniePrzedmioty { get; set; } = new();
     }

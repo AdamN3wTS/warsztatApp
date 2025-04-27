@@ -24,7 +24,7 @@
     <h4>Wybierz typ przedmiotu</h4>
 
     <select id="typPrzedmiotu" class="form-control mb-4">
-        <option value="">-- Wybierz typ --</option>
+        <option value=""> Wybierz typ </option>
         @foreach (var typ in Enum.GetValues(typeof(WarsztatApp.Web.Models.PrzedmiotEnum)))
         {
             <option value="@typ">@typ</option>
@@ -56,12 +56,12 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        document.getElementById('typPrzedmiotu').addEventListener('change', function () {
+                document.getElementById('typPrzedmiotu').addEventListener('change', function () {
             var wybranyTyp = this.value;
             var przedmioty = document.querySelectorAll('#listaPrzedmiotow > div');
 
             przedmioty.forEach(function (przedmiot) {
-                if (wybranyTyp === "" || przedmiot.getAttribute('data-typ') === wybranyTyp) {
+                if (wybranyTyp !== "" && przedmiot.getAttribute('data-typ') === wybranyTyp) {
                     przedmiot.style.display = 'block';
                 } else {
                     przedmiot.style.display = 'none';
